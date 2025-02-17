@@ -1,6 +1,5 @@
 import os
 
-from base_chatbot import BaseChatbot
 from pathlib import Path
 from typing import Optional, Dict
 import json
@@ -17,7 +16,7 @@ def handle_openai_errors(func):
             raise ConnectionError(f"Error communicating with OpenAI: {str(e)}")
     return wrapper
 
-class OpenAIChatbot(BaseChatbot):
+class OpenAIChatbot():
     def __init__(self, model_name: str, history_file: Path, 
                 system_prompt: str = "You are a helpful assistant.",
                  api_key: Optional[str] = None,
