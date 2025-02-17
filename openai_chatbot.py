@@ -1,10 +1,11 @@
+import os
+
 from base_chatbot import BaseChatbot
 from pathlib import Path
-from typing import Iterator, List, Dict, Any, Optional
+from typing import Optional, Dict
 import json
 from openai import OpenAI, Stream
 from openai.types.chat import ChatCompletionChunk, ChatCompletion
-import sys
 
 
 def handle_openai_errors(func):
@@ -17,10 +18,24 @@ def handle_openai_errors(func):
     return wrapper
 
 class OpenAIChatbot(BaseChatbot):
-    def __init__(self, model_name: str, history_file: Path, api_key: Optional[str] = None, base_url: Optional[str] = None) -> None:
+    def __init__(self, model_name: str, history_file: Path, 
+                system_prompt: str = "You are a helpful assistant.",
+                 api_key: Optional[str] = None,
+                 base_url: Optional[str] = None) -> None:
         """Initialize OpenAI chatbot."""
-        super().__init__(model_name, history_file, api_key, base_url)
-        self.client = OpenAI(api_key=self.api_key, base_url=self.base_url)
+        if not history_file.exists():
+            raise FileNotFoundError(f"History file not found: {history_file}")
+
+        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
+        if self.api_key is None:
+            raise ValueError("API key must be provided either through parameter or OPENAI_API_KEY environment variable")
+
+        self.model_name = model_name
+        self.history_file = history_file
+        self.chat_history = [{'role': 'system', 'content': system_prompt}]
+        self._load_history()
+        self.client = OpenAI(api_key=self.api_key, 
+            base_url=base_url if base_url else None)
 
     @handle_openai_errors
     def chat_stream(self, message: str, should_print: bool = True) -> str:

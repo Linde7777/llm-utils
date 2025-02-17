@@ -25,13 +25,7 @@ class BaseChatbot(ABC):
             ValueError: If API key is not provided
             FileNotFoundError: If the history file doesn't exist
         """
-        if not history_file.exists():
-            raise FileNotFoundError(f"History file not found: {history_file}")
-            
-        self.model_name = model_name
-        self.history_file = history_file
-        self.chat_history = [Dict[str, str]]
-        self._load_history()
+        pass
 
 
     @abstractmethod
