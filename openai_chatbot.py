@@ -16,12 +16,12 @@ def handle_openai_errors(func):
             raise ConnectionError(f"Error communicating with OpenAI: {str(e)}")
     return wrapper
 
-class OpenAIChatbot():
+class OpenAIChatbot:
     def __init__(self, model_name: str, history_file: Path, 
                 system_prompt: str = "You are a helpful assistant.",
                  api_key: Optional[str] = None,
                  base_url: Optional[str] = None) -> None:
-        """Initialize OpenAI chatbot."""
+
         if not history_file.exists():
             raise FileNotFoundError(f"History file not found: {history_file}")
 
@@ -38,18 +38,15 @@ class OpenAIChatbot():
 
     @handle_openai_errors
     def chat_stream(self, message: str, should_print: bool = True) -> str:
-        """Stream chat response from OpenAI."""
-        # Add user message to history
+        """Note that sometimes the print will disturb debugging."""
         self.chat_history.append({"role": "user", "content": message})
         
-        # Create stream response
-        stream: Stream[ChatCompletionChunk] = self.client.chat.completions.create(
+        stream = self.client.chat.completions.create(
             model=self.model_name,
-            messages=[{"role": m["role"], "content": m["content"]} for m in self.chat_history],
+            messages=self.chat_history,
             stream=True
         )
         
-        # Collect response
         full_response = ""
         for chunk in stream:
             if chunk.choices[0].delta.content:
@@ -59,9 +56,8 @@ class OpenAIChatbot():
                     print(content, end="", flush=True)
         
         if should_print:
-            print()  # New line after response
+            print()
             
-        # Add assistant response to history
         self.chat_history.append({"role": "assistant", "content": full_response})
         self._save_history()
         
@@ -69,14 +65,12 @@ class OpenAIChatbot():
 
     @handle_openai_errors
     def chat(self, message: str, should_print: bool = True) -> str:
-        """Send message and get response without streaming."""
-        # Add user message to history
+        """Without streaming. Note that sometimes the print will disturb debugging."""
         self.chat_history.append({"role": "user", "content": message})
         
-        # Get response
-        response: ChatCompletion = self.client.chat.completions.create(
+        response = self.client.chat.completions.create(
             model=self.model_name,
-            messages=[{"role": m["role"], "content": m["content"]} for m in self.chat_history],
+            messages=self.chat_history,
             stream=False
         )
         
@@ -85,7 +79,6 @@ class OpenAIChatbot():
         if should_print:
             print(response_text)
             
-        # Add assistant response to history
         self.chat_history.append({"role": "assistant", "content": response_text})
         self._save_history()
         
