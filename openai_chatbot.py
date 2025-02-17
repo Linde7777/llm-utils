@@ -38,7 +38,12 @@ class OpenAIChatbot:
 
     @handle_openai_errors
     def chat_stream(self, message: str, should_print: bool = True) -> str:
-        """Note that sometimes the print will disturb debugging."""
+        """
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        debug时如果开启了print，当你把terminal内容发送给cursor后，
+        可能会让它对bug源头产生误解（cursor可能没注意到这个函数开启了print）
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        """
         self.chat_history.append({"role": "user", "content": message})
         
         stream = self.client.chat.completions.create(
@@ -65,7 +70,14 @@ class OpenAIChatbot:
 
     @handle_openai_errors
     def chat(self, message: str, should_print: bool = True) -> str:
-        """Without streaming. Note that sometimes the print will disturb debugging."""
+        """Without streaming. 
+
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        debug时如果开启了print，当你把terminal内容发送给cursor后，
+        可能会让它对bug源头产生误解（cursor可能没注意到这个函数开启了print）
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        """
         self.chat_history.append({"role": "user", "content": message})
         
         response = self.client.chat.completions.create(
