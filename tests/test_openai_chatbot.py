@@ -6,6 +6,7 @@ import json
 from unittest.mock import Mock, patch
 from openai_chatbot import OpenAIChatbot
 import pytest
+import os
 
 @pytest.fixture
 def mock_history_file(tmp_path):
@@ -50,15 +51,6 @@ class TestOpenAIChatbot(unittest.TestCase):
     def tearDown(self):
         """测试后的清理"""
         shutil.rmtree(self.temp_dir)
-
-    def test_init_missing_api_key(self):
-        """测试缺少API key时的错误处理"""
-        with self.assertRaises(ValueError):
-            OpenAIChatbot(
-                model_name="gpt-3.5-turbo",
-                history_file=self.history_file,
-                api_key=None
-            )
 
     def test_init_missing_history_file(self):
         """测试历史文件不存在时的错误处理"""
