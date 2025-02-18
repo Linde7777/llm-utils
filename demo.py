@@ -11,7 +11,7 @@ if __name__ == "__main__":
     chatbot = OpenAIChatbot(
             model_name="gemini-2.0-flash-lite-preview-02-05",
             history_file=Path("chat_history.json"),
-            system_prompt="You are skilled in translating English to Chinese.",
+            system_prompt="If user ask you in English, you should answer in Chinese.",
             api_key=os.getenv("GEMINI_API_KEY"),
             base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
         )
