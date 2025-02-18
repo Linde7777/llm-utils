@@ -128,5 +128,51 @@ class TestOpenAIChatbot(unittest.TestCase):
         self.assertEqual(chatbot2.chat_history[-2]["content"], "Test message")
         self.assertEqual(chatbot2.chat_history[-1]["content"], "Test response")
 
+    def test_system_prompt_with_empty_history(self):
+        """测试空历史记录时是否正确添加系统提示"""
+        # 创建一个空的历史文件
+        empty_history_file = Path(self.temp_dir) / "empty_history.json"
+        with open(empty_history_file, 'w', encoding='utf-8') as f:
+            json.dump([], f)  # 写入空数组
+            
+        custom_prompt = "Custom system prompt"
+        chatbot = OpenAIChatbot(
+            model_name="gpt-3.5-turbo",
+            history_file=empty_history_file,
+            system_prompt=custom_prompt,
+            api_key="test_key"
+        )
+        
+        # 验证是否正确添加了系统提示
+        self.assertEqual(len(chatbot.chat_history), 1)
+        self.assertEqual(chatbot.chat_history[0]["role"], "system")
+        self.assertEqual(chatbot.chat_history[0]["content"], custom_prompt)
+
+    def test_system_prompt_with_existing_history(self):
+        """测试非空历史记录时是否保持原样"""
+        # 创建一个包含自定义历史记录的文件
+        existing_history_file = Path(self.temp_dir) / "existing_history.json"
+        existing_history = [
+            {"role": "system", "content": "Original system prompt"},
+            {"role": "user", "content": "Hello"},
+            {"role": "assistant", "content": "Hi there"}
+        ]
+        with open(existing_history_file, 'w', encoding='utf-8') as f:
+            json.dump(existing_history, f)
+            
+        # 使用不同的系统提示创建chatbot
+        chatbot = OpenAIChatbot(
+            model_name="gpt-3.5-turbo",
+            history_file=existing_history_file,
+            system_prompt="New system prompt",  # 这个不应该被使用
+            api_key="test_key"
+        )
+        
+        # 验证历史记录保持不变
+        self.assertEqual(len(chatbot.chat_history), 3)
+        self.assertEqual(chatbot.chat_history[0]["content"], "Original system prompt")
+        self.assertEqual(chatbot.chat_history[1]["content"], "Hello")
+        self.assertEqual(chatbot.chat_history[2]["content"], "Hi there")
+
 if __name__ == '__main__':
     unittest.main() 

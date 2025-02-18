@@ -21,6 +21,10 @@ class OpenAIChatbot:
                 system_prompt: str = "You are a helpful assistant.",
                  api_key: Optional[str] = None,
                  base_url: Optional[str] = None) -> None:
+        """
+        如果history_file只有一个空数组，那么就会加载system_prompt。
+        如果history_file有内容，那就不加载system_prompt。
+        """
 
         if not history_file.exists():
             raise FileNotFoundError(f"History file not found: {history_file}")
@@ -31,8 +35,11 @@ class OpenAIChatbot:
 
         self.model_name = model_name
         self.history_file = history_file
-        self.chat_history = [{'role': 'system', 'content': system_prompt}]
+        self.system_prompt = system_prompt
+        self.chat_history = []
         self._load_history()
+        if not self.chat_history:
+            self.chat_history = [{'role': 'system', 'content': system_prompt}]
         self.client = OpenAI(api_key=self.api_key, 
             base_url=base_url if base_url else None)
 
