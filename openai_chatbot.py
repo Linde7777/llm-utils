@@ -34,6 +34,7 @@ class OpenAIChatbot:
         if self.api_key is None:
             raise ValueError("API key must be provided either through parameter or OPENAI_API_KEY environment variable")
 
+        self.temperature = temperature
         self.model_name = model_name
         self.history_file = history_file
         self.system_prompt = system_prompt
