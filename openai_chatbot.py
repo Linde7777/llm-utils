@@ -20,7 +20,8 @@ class OpenAIChatbot:
     def __init__(self, model_name: str, history_file: Path, 
                 system_prompt: str = "You are a helpful assistant.",
                  api_key: Optional[str] = None,
-                 base_url: Optional[str] = None) -> None:
+                 base_url: Optional[str] = None,
+                 temperature: float = 0.7) -> None:
         """
         如果history_file只有一个空数组，那么就会加载system_prompt。
         如果history_file有内容，那就不加载system_prompt。
@@ -56,6 +57,7 @@ class OpenAIChatbot:
         stream = self.client.chat.completions.create(
             model=self.model_name,
             messages=self.chat_history,
+            temperature=self.temperature,
             stream=True
         )
         
@@ -90,6 +92,7 @@ class OpenAIChatbot:
         response = self.client.chat.completions.create(
             model=self.model_name,
             messages=self.chat_history,
+            temperature=self.temperature,
             stream=False
         )
         
